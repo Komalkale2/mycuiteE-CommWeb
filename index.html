@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Maison de L'Esthétique | Curated Collection</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Poppins:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-creme: #FBF9F6;
+            --accent-warm: #E6DFD3;
+            --text-dark: #3E3B37;
+            --text-muted: #8A8279;
+            --white: #FFFFFF;
+            --gold-soft: #C5A880;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--bg-creme);
+            color: var(--text-dark);
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Header Style */
+        header {
+            text-align: center;
+            padding: 60px 20px;
+            background-color: var(--white);
+            border-bottom: 1px solid var(--accent-warm);
+        }
+
+        header h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.8rem;
+            font-weight: 400;
+            margin: 0;
+            letter-spacing: 2px;
+        }
+
+        header p {
+            font-family: 'Playfair Display', serif;
+            font-style: italic;
+            color: var(--text-muted);
+            margin-top: 10px;
+            font-size: 1.1rem;
+        }
+
+        /* Navigation Filters */
+        nav {
+            display: flex;
+            justify-center: center;
+            gap: 20px;
+            justify-content: center;
+            margin: 30px 0;
+        }
+
+        .nav-btn {
+            background: none;
+            border: none;
+            font-family: 'Poppins', sans-serif;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-muted);
+            cursor: pointer;
+            padding: 5px 15px;
+            transition: all 0.3s ease;
+        }
+
+        .nav-btn.active, .nav-btn:hover {
+            color: var(--text-dark);
+            border-bottom: 1px solid var(--gold-soft);
+        }
+
+        /* Catalog Layout */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px 60px 20px;
+        }
+
+        .category-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.8rem;
+            margin: 40px 0 20px 0;
+            border-bottom: 1px solid var(--accent-warm);
+            padding-bottom: 10px;
+            letter-spacing: 1px;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 30px;
+        }
+
+        /* Product Cards */
+        .card {
+            background: var(--white);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(230, 223, 211, 0.4);
+            transition: transform 0.3s ease;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+        }
+
+        .card-img {
+            width: 100%;
+            height: 320px;
+            object-fit: cover;
+            background-color: var(--accent-warm);
+        }
+
+        .card-body {
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1;
+        }
+
+        .card-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.25rem;
+            margin: 0 0 8px 0;
+            font-weight: 600;
+        }
+
+        .card-desc {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-bottom: 15px;
+            line-height: 1.5;
+        }
+
+        .card-footer {
+            margin-top: auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .price {
+            font-size: 1.1rem;
+            font-weight: 500;
+            color: var(--text-dark);
+        }
+
+        .buy-btn {
+            background-color: var(--bg-creme);
+            color: var(--text-dark);
+            border: 1px solid var(--accent-warm);
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-family: 'Poppins', sans-serif;
+            font-size: 0.85rem;
+            transition: all 0.3s ease;
+        }
+
+        .buy-btn:hover {
+            background-color: var(--text-dark);
+            color: var(--white);
+            border-color: var(--text-dark);
+        }
+
+        .buy-btn:disabled {
+            background-color: var(--accent-warm);
+            color: var(--text-muted);
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Maison de L'Esthétique</h1>
+        <p>Handmade stories, delicate threads, and lovely pieces</p>
+    </header>
+
+    <nav>
+        <button class="nav-btn active" onclick="filterCategory('All')">All Collection</button>
+        <button class="nav-btn" onclick="filterCategory('Stationery')">Brochures</button>
+        <button class="nav-btn" onclick="filterCategory('Tops')">Tops</button>
+        <button class="nav-btn" onclick="filterCategory('Accessories')">Girls Things</button>
+    </nav>
+
+    <main class="container" id="catalog-root">
+        </main>
+
+    <script>
+        let allProducts = [];
+
+        async function fetchCatalog() {
+            try {
+                const response = await fetch('/api/products');
+                allProducts = await response.json();
+                renderBoutique(allProducts);
+            } catch (err) {
+                console.error("Error updating catalog visualization:", err);
+            }
+        }
+
+        function renderBoutique(products) {
+            const root = document.getElementById('catalog-root');
+            root.innerHTML = '';
+
+            // Group products structural layer by category
+            const categories = [...new Set(products.map(p => p.category))];
+
+            categories.forEach(cat => {
+                const catSection = document.createElement('section');
+                catSection.innerHTML = `<h3 class="category-title">${cat}</h3>`;
+                
+                const grid = document.createElement('div');
+                grid.className = 'grid';
+
+                const catItems = products.filter(p => p.category === cat);
+                catItems.forEach(item => {
+                    const card = document.createElement('div');
+                    card.className = 'card';
+                    card.innerHTML = `
+                        <img src="${item.image_url}" alt="${item.name}" class="card-img">
+                        <div class="card-body">
+                            <h4 class="card-title">${item.name}</h4>
+                            <p class="card-desc">${item.description}</p>
+                            <div class="card-footer">
+                                <span class="price">₹${item.price.toFixed(2)}</span>
+                                <button class="buy-btn" ${item.stock === 0 ? 'disabled' : ''} onclick="purchaseItem(${item.id})">
+                                    ${item.stock === 0 ? 'Sold Out' : 'Acquire Piece'}
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                    grid.appendChild(card);
+                });
+
+                catSection.appendChild(grid);
+                root.appendChild(catSection);
+            });
+        }
+
+        function filterCategory(category) {
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.innerText.includes(category) || (category==='All' && btn.innerText==='ALL COLLECTION'));
+            });
+
+            if (category === 'All') {
+                renderBoutique(allProducts);
+            } else {
+                const filtered = allProducts.filter(p => p.category === category);
+                renderBoutique(filtered);
+            }
+        }
+
+        async function purchaseItem(productId) {
+            const namePrompt = prompt("Please enter your name to complete reservation:");
+            if (!namePrompt) return;
+
+            const response = await fetch('/api/orders', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ product_id: productId, quantity: 1, customer_name: namePrompt })
+            });
+
+            const data = await response.json();
+            alert(data.message || data.error);
+            fetchCatalog();
+        }
+
+        // Initialize display
+        fetchCatalog();
+    </script>
+</body>
+</html>
